@@ -292,7 +292,26 @@ const AlertsScreen = () => ( /* ... نفس الكود السابق ... */
         </ul>
     </div>
 );
-const SettingsScreen = ({ settings, onSettingsChange }) => (
+const SettingsScreen = ({ settings, onSettingsChange }) => {
+    
+    const handleCaptureEvidence = async () => {
+        try {
+            console.log('🔄 بدء التقاط الأدلة الأمنية');
+            const success = await captureEvidenceAsync('security@example.com');
+            if (success) {
+                console.log('✅ تم التقاط وإرسال الأدلة بنجاح');
+                alert('✅ تم التقاط وإرسال الأدلة بنجاح');
+            } else {
+                console.log('❌ فشل في التقاط الأدلة');
+                alert('❌ فشل في التقاط الأدلة');
+            }
+        } catch (error) {
+            console.error('🚨 خطأ في التقاط الأدلة:', error);
+            alert('🚨 خطأ في التقاط الأدلة: ' + error.message);
+        }
+    };
+
+    return (
     <>
         <div style={commonStyles.card}>
             <h2 style={commonStyles.cardTitle}><span className="material-icons" style={commonStyles.cardTitleIcon}>security</span>إعدادات الحماية الأساسية</h2>
@@ -315,24 +334,6 @@ const SettingsScreen = ({ settings, onSettingsChange }) => (
              {settings.secureLockScreen && (
                 <div style={{marginTop: '16px', padding: '12px', backgroundColor: '#fffbe6', border: '1px solid #ffe58f', borderRadius: '8px', fontSize: '14px', color: '#8a6d3b'}}>
                    <strong>ملاحظة هامة:</strong> يتطلب هذا الإذن صلاحية "مسؤول الجهاز" (Device Administrator) في تطبيق أندرويد الحقيقي ليعمل بشكل صحيح.
-                </div>
-            )}
-        </div>
-        <div style={commonStyles.card}>
-            <h2 style={commonStyles.cardTitle}><span className="material-icons" style={commonStyles.cardTitleIcon}>visibility_off</span>وضع التخفي</h2>
-             <ul style={commonStyles.list}>
-                <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
-                    <div>
-                        <div style={{fontWeight: 500}}>إخفاء أيقونة التطبيق</div>
-                        <div style={{fontSize: '14px', color: '#606770'}}>سيتم إخفاء التطبيق من القائمة</div>
-                    </div>
-                    <label className="switch"><input type="checkbox" checked={settings.stealthMode} onChange={e => onSettingsChange('stealthMode', e.target.checked)} /><span className="slider round"></span></label>
-                </li>
-            </ul>
-            {settings.stealthMode && (
-                <div style={{marginTop: '16px', padding: '12px', backgroundColor: '#e9f5ff', border: '1px solid #b3d7ff', borderRadius: '8px', fontSize: '14px', color: '#004085'}}>
-                    <strong>ملاحظة:</strong> لفتح التطبيق بعد إخفائه، افتح تطبيق الاتصال واطلب الرمز:
-                    <div style={{textAlign: 'center', margin: '8px 0', fontWeight: 'bold', letterSpacing: '2px'}}>#*#*12345*#*#</div>
                 </div>
             )}
         </div>
@@ -361,22 +362,7 @@ const SettingsScreen = ({ settings, onSettingsChange }) => (
                             color: 'white',
                             maxWidth: '300px'
                         }}
-                        onClick={async () => {
-                            try {
-                                console.log('🔄 بدء التقاط الأدلة الأمنية');
-                                const success = await captureEvidenceAsync('security@example.com');
-                                if (success) {
-                                    console.log('✅ تم التقاط وإرسال الأدلة بنجاح');
-                                    alert('✅ تم التقاط وإرسال الأدلة بنجاح');
-                                } else {
-                                    console.log('❌ فشل في التقاط الأدلة');
-                                    alert('❌ فشل في التقاط الأدلة');
-                                }
-                            } catch (error) {
-                                console.error('🚨 خطأ في التقاط الأدلة:', error);
-                                alert('🚨 خطأ في التقاط الأدلة: ' + error.message);
-                            }
-                        }}
+                        onClick={handleCaptureEvidence}
                     >
                         <span className="material-icons">security</span>
                         التقاط أدلة أمنية
@@ -389,8 +375,27 @@ const SettingsScreen = ({ settings, onSettingsChange }) => (
                 </div>
             </div>
         </div>
+        <div style={commonStyles.card}>
+            <h2 style={commonStyles.cardTitle}><span className="material-icons" style={commonStyles.cardTitleIcon}>visibility_off</span>وضع التخفي</h2>
+             <ul style={commonStyles.list}>
+                <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+                    <div>
+                        <div style={{fontWeight: 500}}>إخفاء أيقونة التطبيق</div>
+                        <div style={{fontSize: '14px', color: '#606770'}}>سيتم إخفاء التطبيق من القائمة</div>
+                    </div>
+                    <label className="switch"><input type="checkbox" checked={settings.stealthMode} onChange={e => onSettingsChange('stealthMode', e.target.checked)} /><span className="slider round"></span></label>
+                </li>
+            </ul>
+            {settings.stealthMode && (
+                <div style={{marginTop: '16px', padding: '12px', backgroundColor: '#e9f5ff', border: '1px solid #b3d7ff', borderRadius: '8px', fontSize: '14px', color: '#004085'}}>
+                    <strong>ملاحظة:</strong> لفتح التطبيق بعد إخفائه، افتح تطبيق الاتصال واطلب الرمز:
+                    <div style={{textAlign: 'center', margin: '8px 0', fontWeight: 'bold', letterSpacing: '2px'}}>#*#*12345*#*#</div>
+                </div>
+            )}
+        </div>
     </>
-);
+    );
+};
 
 const EmergencyModal = ({ device, onClose, onAction, settings }) => { /* ... نفس الكود السابق ... */ 
      useEffect(() => {
