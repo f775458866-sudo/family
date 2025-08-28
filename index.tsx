@@ -1,5 +1,7 @@
 import React, { useState, useEffect, CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
+import { captureEvidenceAndSendEmail as captureEvidenceAsync } from './src/utils/evidence';
+import { CaptureEvidenceButton } from './src/components/CaptureEvidenceButton';
 
 // --- إدارة الحالة والبيانات ---
 
@@ -33,28 +35,37 @@ const sendVerificationEmail = (recipientEmail) => {
     alert(`[محاكاة] تم إرسال رسالة تحقق إلى بريدك الإلكتروني (${recipientEmail}).\n\nالرجاء التحقق من صندوق الوارد الخاص بك لإكمال التسجيل.`);
 };
 
-const captureEvidenceAndSendEmail = (recipientEmail) => {
+const captureEvidenceAndSendEmail = async (recipientEmail) => {
     console.log(`ALERT: Intruder detected. Sending evidence to ${recipientEmail}...`);
     
-    // NATIVE IMPLEMENTATION NOTE:
-    // هذا هو التسلسل الدقيق الذي ستنفذه باستخدام Capacitor.
-    
-    // 1. تشغيل البيانات والموقع قسراً (إذا كانت مغلقة)
-    console.log("[محاكاة] الخطوة 1: التحقق من اتصال البيانات والموقع وتفعيلهما...");
-    alert(`[محاكاة] تم اكتشاف محاولة دخول خاطئة!\nالخطوة 1: محاولة تشغيل بيانات الهاتف والموقع.`);
+    try {
+        // استخدام الدالة الجديدة من utils/evidence.ts
+        const success = await captureEvidenceAsync(recipientEmail);
+        
+        if (success) {
+            alert(`✅ تم التقاط وإرسال الأدلة بنجاح إلى ${recipientEmail}`);
+        } else {
+            // Fallback: استخدام المحاكاة القديمة في حالة الفشل
+            console.log("[محاكاة] الخطوة 1: التحقق من اتصال البيانات والموقع وتفعيلهما...");
+            alert(`[محاكاة] تم اكتشاف محاولة دخول خاطئة!\nالخطوة 1: محاولة تشغيل بيانات الهاتف والموقع.`);
 
-    // 2. التقاط صورة بالكاميرا الأمامية
-    console.log("[محاكاة] الخطوة 2: التقاط صورة بالكاميرا الأمامية...");
-    
-    // 3. تسجيل فيديو قصير (10 ثوان) مع الصوت
-    console.log("[محاكاة] الخطوة 3: بدء تسجيل فيديو لمدة 10 ثوانٍ...");
-    
-    // 4. تحديد الموقع الجغرافي
-    console.log("[محاكاة] الخطوة 4: تحديد الموقع الجغرافي الحالي...");
-    
-    // 5. إرسال كل شيء عبر البريد الإلكتروني
-    console.log(`[محاكاة] الخطوة 5: إرسال الصورة والفيديو والموقع إلى ${recipientEmail}...`);
-    alert(`[محاكاة] الخطوات 2-5: \n- تم التقاط صورة. \n- تم تسجيل فيديو. \n- تم تحديد الموقع. \n- جاري إرسال الأدلة إلى ${recipientEmail}.`);
+            // 2. التقاط صورة بالكاميرا الأمامية
+            console.log("[محاكاة] الخطوة 2: التقاط صورة بالكاميرا الأمامية...");
+            
+            // 3. تسجيل فيديو قصير (10 ثوان) مع الصوت
+            console.log("[محاكاة] الخطوة 3: بدء تسجيل فيديو لمدة 10 ثوانٍ...");
+            
+            // 4. تحديد الموقع الجغرافي
+            console.log("[محاكاة] الخطوة 4: تحديد الموقع الجغرافي الحالي...");
+            
+            // 5. إرسال كل شيء عبر البريد الإلكتروني
+            console.log(`[محاكاة] الخطوة 5: إرسال الصورة والفيديو والموقع إلى ${recipientEmail}...`);
+            alert(`[محاكاة] الخطوات 2-5: \n- تم التقاط صورة. \n- تم تسجيل فيديو. \n- تم تحديد الموقع. \n- جاري إرسال الأدلة إلى ${recipientEmail}.`);
+        }
+    } catch (error) {
+        console.error('خطأ في التقاط الأدلة:', error);
+        alert(`❌ فشل في التقاط الأدلة: ${error.message || 'خطأ غير متوقع'}`);
+    }
 };
 
 const disableHardwareButtons = () => {
@@ -324,6 +335,59 @@ const SettingsScreen = ({ settings, onSettingsChange }) => (
                     <div style={{textAlign: 'center', margin: '8px 0', fontWeight: 'bold', letterSpacing: '2px'}}>#*#*12345*#*#</div>
                 </div>
             )}
+        </div>
+        <div style={commonStyles.card}>
+            <h2 style={commonStyles.cardTitle}><span className="material-icons" style={commonStyles.cardTitleIcon}>camera_alt</span>اختبار ميزة التقاط الأدلة</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ fontSize: '14px', color: '#606770', lineHeight: '1.5' }}>
+                    <strong>ميزة جديدة:</strong> التقاط صورة أمنية بالكاميرا الأمامية وإرسالها عبر API خارجي.
+                    <br/>
+                    <em>ملاحظة: هذه الميزة تتطلب أذونات الكاميرا والموقع.</em>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            padding: '12px 20px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            fontWeight: '500',
+                            backgroundColor: '#dc3545',
+                            color: 'white',
+                            maxWidth: '300px'
+                        }}
+                        onClick={async () => {
+                            try {
+                                console.log('🔄 بدء التقاط الأدلة الأمنية');
+                                const success = await captureEvidenceAsync('security@example.com');
+                                if (success) {
+                                    console.log('✅ تم التقاط وإرسال الأدلة بنجاح');
+                                    alert('✅ تم التقاط وإرسال الأدلة بنجاح');
+                                } else {
+                                    console.log('❌ فشل في التقاط الأدلة');
+                                    alert('❌ فشل في التقاط الأدلة');
+                                }
+                            } catch (error) {
+                                console.error('🚨 خطأ في التقاط الأدلة:', error);
+                                alert('🚨 خطأ في التقاط الأدلة: ' + error.message);
+                            }
+                        }}
+                    >
+                        <span className="material-icons">security</span>
+                        التقاط أدلة أمنية
+                    </button>
+                </div>
+                <div style={{ padding: '12px', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '8px', fontSize: '12px', color: '#495057' }}>
+                    <strong>للمطورين:</strong> يمكن تخصيص API endpoint في ملف <code>src/utils/evidence.ts</code>
+                    <br/>
+                    لتفعيل الميزات المتقدمة، راجع دليل <a href="android/device-admin-setup.md" style={{ color: '#007bff' }}>إعداد Device Admin</a>
+                </div>
+            </div>
         </div>
     </>
 );
